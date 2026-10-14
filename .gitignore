@@ -4,3 +4,11 @@ user_details.py
 *~
 *.log
 */.DS_Store
+.env
+.env.*
+!.env.example
+skysight_profile/
+__pycache__/
+.venv/
+*.bak
+spots.yaml

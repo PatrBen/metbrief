@@ -3,12 +3,23 @@ from curl_cffi import requests
 import shutil
 from bs4 import BeautifulSoup
 import datetime
-from user_details_jan import *
+try:
+    from user_details_jan import *
+except ImportError:  # fall back to the shipped template for everybody else
+    from user_details import *
 from urllib.parse import urlparse
 import re
 import argparse
 from fake_useragent import UserAgent
 
+# Optional .env / environment (takes precedence over user_details.py), see .env.example
+if os.path.isfile('.env'):
+    for _line in open('.env', encoding='utf-8'):
+        _key, _sep, _val = _line.strip().partition('=')
+        if _sep and not _key.startswith('#'):
+            os.environ.setdefault(_key.strip(), _val.strip().strip('"\''))
+USERNAME_TOPMETEO = os.environ.get('TOPMETEO_USER', USERNAME_TOPMETEO)
+PASSWORD_TOPMETEO = os.environ.get('TOPMETEO_PASSWORD', PASSWORD_TOPMETEO)
 
 LOC_COMP = 'jwgc2026'
 
@@ -64,6 +75,9 @@ def main():
                         help="Set to True to create the presentation locally. PRESENTLY DISABLED")
     parser.add_argument("--output_path", required=False, type=str,
                         help="Set output path")
+    parser.add_argument("--skysight", required=False, type=str, metavar="SPOT",
+                        help="Also download Skysight layers + PPTX for SPOT from spots.example.yaml / spots.yaml "
+                             "(needs skysight_login.py once)")
     args = parser.parse_args()
 
     satrad_only = args.satrad_only
@@ -160,6 +174,15 @@ def main():
         # Topmeteo chart download
         download_topmeteo(var_topmeteo, loc=detail_comp[LOC_COMP]['loc_topmeteo'],
                           day=0, today=today, user=USERNAME_TOPMETEO, passwd=PASSWORD_TOPMETEO)
+
+    if args.skysight:
+        # Optional: Skysight layers into charts/skysight (cwd is the charts directory here)
+        import skysight_shots
+        key, spot = skysight_shots.find_spot(args.skysight)
+        if spot is None:
+            print(f"Skysight: unknown spot '{args.skysight}' (see spots.example.yaml)")
+        else:
+            skysight_shots.download(spot, datetime.date.today(), os.getcwd(), headless=True, key=key)
 
     if create_presentation_locally:
         # Verify if command-line LibreOffice is available

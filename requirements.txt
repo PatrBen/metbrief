@@ -5,3 +5,8 @@
  lxml
  fake-useragent
  curl-cffi
+ # optional, only for the Skysight integration (see README)
+ playwright
+ pillow
+ python-pptx
+ pyyaml

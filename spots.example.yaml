@@ -1,0 +1,22 @@
+# Spots for the optional Skysight integration (skysight_shots.py / metbrief.py --skysight).
+# Copy to spots.yaml and edit; spots.yaml is looked up first, this file is the fallback.
+spots:
+  feuerstein:
+    name: Feuerstein
+    aliases: [Burg Feuerstein, EDQE]
+    lat: 49.795                    # Burg Feuerstein airfield (EDQE)
+    lon: 11.134
+    timezone: Europe/Berlin        # local time of times_local below
+
+    skysight:
+      region: "Central Europe"     # as named in the Skysight menu Settings > Regions
+      view:                        # map section; alternatively bbox: [south, west, north, east]
+        center: [49.795, 11.134]   # map centre [lat, lon]
+        map_width_km: 600          # width of the map area in km (default 800)
+      point: [49.795, 11.134]      # point for the wind diagram [lat, lon]
+      layers:                      # route = part of the Skysight URL after "#/"; times_local = local hours
+        - {key: flugdistanz, route: pfd, title: "Skysight potential flight distance", unit: km,
+           times_local: [14], daily: true,
+           note: "Potential flight distance is a daily value and applies to the whole day."}
+        - {key: cubasis, route: cu-cloudbase, title: "Skysight Cu base", unit: m, times_local: [10, 14, 16]}
+      windgram: {title: "Skysight wind profile", range: "GND - 9000m", tab: Overview}
